@@ -1,10 +1,9 @@
-q = int(input())
-g = int(input())
+import streamlit as st
 
 def primitive_roots_hunter(q, g):
     if q > 1:
         if (q % 2) == 0:
-            print(f"{q} is not a prime number!!")
+            st.write(f"{q} is not a prime number!!")
             return
         else:
             prim_or_not = False
@@ -18,21 +17,31 @@ def primitive_roots_hunter(q, g):
                     if f not in placeholder:
                         placeholder.append(f)
                         if h <= (q-2):
-                            print(f"{p}^{h} mod {q} = {f}", end= ", ")
+                            st.write(f"{p}^{h} mod {q} = {f}", end=", ")
                         if h == (q-1):
-                            print(f"{p}^{h} mod {q} = {f} ==> {p} is primitive root of {q}", end=",")
+                            st.write(f"{p}^{h} mod {q} = {f} ==> {p} is primitive root of {q}", end=", ")
                             prim_or_not = True
                             primitive_roots.append(p)
                     elif f in placeholder:
                         placeholder.clear()
-                        print("")
+                        st.write("")
                         break
             if g in primitive_roots:
-                print(f"{g} is primitive root: {prim_or_not} {primitive_roots}")
+                st.write(f"{g} is primitive root: {prim_or_not} {primitive_roots}")
             else:
-                print(f"{g} is NOT primitive root of {q} - List of Primitive roots: {primitive_roots}")
+                st.write(f"{g} is NOT a primitive root of {q} - List of Primitive roots: {primitive_roots}")
     else:
-        print(f"{q} is not a prime number!!")
+        st.write(f"{q} is not a prime number!!")
         return
-        
-primitive_roots_hunter(q, g)
+
+def main():
+    st.title("Primitive Roots Hunter")
+    q = st.number_input("Enter a prime number (q):", min_value=2, step=1)
+    g = st.number_input("Enter a candidate primitive root (g):", min_value=2, step=1)
+
+    if st.button("Find Primitive Roots"):
+        st.write("Primitive Roots:")
+        primitive_roots_hunter(int(q), int(g))
+
+if __name__ == "__main__":
+    main()

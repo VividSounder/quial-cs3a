@@ -1,5 +1,10 @@
+import streamlit as st
+
 def pad(data, block_size):    # CMS (Cryptographic Message Syntax). This pads with the same value as the number of padding bytes.
     # Calculate the number of bytes needed to reach a multiple of block size.
+    if isinstance(data, str):
+        data = data.encode('utf-8')
+
     padding_length = block_size - len(data) % block_size  
     
     # Create the padding by repeating the padding length byte.
@@ -40,7 +45,7 @@ def xor_encrypt(plaintext, key, block_size):
     
     # Pad the plaintext to ensure its length is a multiple of the block size
     padded_plaintext = pad(plaintext, block_size)
-    print("Encrypted blocks")
+    st.write("Encrypted blocks")
     # Iterate through the plaintext in blocks of size block_size
     for x, i in enumerate(range(0, len(padded_plaintext), block_size)):
         # Extract a block of plaintext
@@ -48,8 +53,8 @@ def xor_encrypt(plaintext, key, block_size):
         # Encrypt the plaintext block using XOR with the key
         encrypted_block = xor_encrypt_block(plaintext_block, key)
         # Append the encrypted block to the encrypted data
-        print(f"Plain  block[{x}]: {plaintext_block.hex()} : {plaintext_block}")
-        print(f"Cipher block[{x}]: {encrypted_block.hex()} : {encrypted_block}")
+        st.write(f"Plain  block[{x}]: {plaintext_block.hex()} : {plaintext_block}")
+        st.write(f"Cipher block[{x}]: {encrypted_block.hex()} : {encrypted_block}")
         encrypted_data += encrypted_block
     # Return the encrypted data
     return encrypted_data         
@@ -59,7 +64,7 @@ def xor_decrypt(ciphertext, key, block_size):
     # Initialize an empty bytes object to store the decrypted data
     decrypted_data = b''
     
-    print("Decrypted blocks")
+    st.write("Decrypted blocks")
     
     # Iterate through the ciphertext in blocks of size block_size
     for x, i in enumerate(range(0, len(ciphertext), block_size)):
@@ -71,38 +76,42 @@ def xor_decrypt(ciphertext, key, block_size):
         
         # Append the decrypted block to the decrypted data
         decrypted_data += decrypted_block
-        print(f"block[{x}]: {decrypted_block.hex()}: {decrypted_block}")
+        st.write(f"block[{x}]: {decrypted_block.hex()}: {decrypted_block}")
     # Remove any padding from the decrypted data
     unpadded_decrypted_data = unpad(decrypted_data)
     
     # Return the unpadded decrypted data
     return unpadded_decrypted_data
 
-
+def main():
+    # Define the plaintext and encryption key
+    plaintext = st.text_input("Enter text:")
+    key = key_input = st.text_input("Enter padding:")# Pad the key
+    key = bytes(key_input, 'utf-8')
+    
+    # Define the block size for encryption (adjust according to your needs)
+    block_size = st.number_input("Enter block size:", min_value=2, step=1)
+    
+    if st.button("Print output"):
+        
+        if block_size not in [8, 16, 32, 64, 128]:
+            st.write("Block size must be one of 8, 16,  32,  64, or 128 bytes")
+        else:
+            key = pad(key, block_size)
+            # Encryption
+            encrypted_data = xor_encrypt(plaintext, key, block_size)    
+            # Decryption
+            decrypted_data = xor_decrypt(encrypted_data, key, block_size)
+            
+            st.write("\nOriginal plaintext:", decrypted_data)
+            st.write("Key byte     :", key)
+            st.write("Key hex      :", key.hex())
+            st.write("Encrypted data:", encrypted_data.hex())  # Print encrypted data in hexadecimal format
+            st.write("Decrypted data:", decrypted_data.hex())
+            st.write("Decrypted data:", decrypted_data)
 
 if __name__ == "__main__":
-    # Define the plaintext and encryption key
-    plaintext = bytes(input().encode())
-    key = bytes(input().encode())# Pad the key
-
-    # Define the block size for encryption (adjust according to your needs)
-    block_size = int(input())
-    
-    if block_size not in [8, 16, 32, 64, 128]:
-        print("Block size must be one of 8, 16,  32,  64, or 128 bytes")
-    else:
-        key = pad(key, block_size)
-        # Encryption
-        encrypted_data = xor_encrypt(plaintext, key, block_size)    
-        # Decryption
-        decrypted_data = xor_decrypt(encrypted_data, key, block_size)
-        
-        print("\nOriginal plaintext:", decrypted_data)
-        print("Key byte     :", key)
-        print("Key hex      :", key.hex())
-        print("Encrypted data:", encrypted_data.hex())  # Print encrypted data in hexadecimal format
-        print("Decrypted data:", decrypted_data.hex())
-        print("Decrypted data:", decrypted_data)
+    main()
 
 
 
